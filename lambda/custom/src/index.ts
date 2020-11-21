@@ -10,16 +10,16 @@ import { SessionEnded } from './intents/SessionEnded';
 import { LocalizationRequestInterceptor } from './interceptors/LocalizationRequestInterceptor';
 
 export const handler = Alexa.SkillBuilders.custom()
-  .addRequestHandlers(
-    // Default intents
-    Launch,
-    HelloWorld,
-    Help,
-    Stop,
-    SessionEnded,
-    Reflector,
-    Fallback
-  )
-  .addErrorHandlers(ErrorProcessor)
-  .addRequestInterceptors(LocalizationRequestInterceptor)
-  .lambda();
+    .addRequestHandlers(
+        // Default intents
+        Launch,
+        HelloWorld,
+        Help,
+        Stop,
+        SessionEnded,
+        Reflector,
+        Fallback,
+    )
+    .addErrorHandlers(ErrorProcessor)
+    .addRequestInterceptors(LocalizationRequestInterceptor)
+    .lambda();

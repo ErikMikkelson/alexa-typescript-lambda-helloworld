@@ -11,10 +11,10 @@
  * permissions and limitations under the License.
  */
 
-const net = require('net');
-const fs = require('fs');
+import { createServer } from 'net';
+import { existsSync } from 'fs';
 
-const localDebugger = net.createServer();
+const localDebugger = createServer();
 
 const httpHeaderDelimeter = '\r\n';
 const httpBodyDelimeter = '\r\n\r\n';
@@ -27,8 +27,7 @@ const defaultPort = 0;
  * skill entry file.
  */
 
-// eslint-disable-next-line import/no-dynamic-require
-const skillInvoker = require(getAndValidateSkillInvokerFile());
+const skillInvoker = import(getAndValidateSkillInvokerFile());
 const portNumber = getAndValidatePortNumber();
 const lambdaHandlerName = getLambdaHandlerName();
 
@@ -57,7 +56,9 @@ localDebugger.on('connection', (socket) => {
         skillInvoker[lambdaHandlerName](body, null, (_invokeErr, response) => {
             response = JSON.stringify(response);
             console.log(`Response envelope: ${response}`);
-            socket.write(`HTTP/1.1 200 OK${httpHeaderDelimeter}Content-Type: application/json;charset=UTF-8${httpHeaderDelimeter}Content-Length: ${response.length}${httpBodyDelimeter}${response}`);
+            socket.write(
+                `HTTP/1.1 200 OK${httpHeaderDelimeter}Content-Type: application/json;charset=UTF-8${httpHeaderDelimeter}Content-Length: ${response.length}${httpBodyDelimeter}${response}`,
+            );
         });
     });
 });
@@ -73,11 +74,15 @@ function getAndValidatePortNumber() {
         throw new Error(`Port number has to be an integer - ${portNumberArgument}.`);
     }
     if (portNumberArgument < 0 || portNumberArgument > 65535) {
-        throw new Error(`Port out of legal range: ${portNumberArgument}. The port number should be in the range [0, 65535]`);
+        throw new Error(
+            `Port out of legal range: ${portNumberArgument}. The port number should be in the range [0, 65535]`,
+        );
     }
     if (portNumberArgument === 0) {
-        console.log('The TCP server will listen on a port that is free.'
-        + 'Check logs to find out what port number is being used');
+        console.log(
+            'The TCP server will listen on a port that is free.' +
+                'Check logs to find out what port number is being used',
+        );
     }
     return portNumberArgument;
 }
@@ -99,7 +104,7 @@ function getLambdaHandlerName() {
 // eslint-disable-next-line consistent-return
 function getAndValidateSkillInvokerFile() {
     const fileNameArgument = getArgument('skillEntryFile');
-    if (!fs.existsSync(fileNameArgument)) {
+    if (!existsSync(fileNameArgument)) {
         throw new Error(`File not found: ${fileNameArgument}`);
     }
     return fileNameArgument;
